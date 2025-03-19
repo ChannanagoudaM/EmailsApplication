@@ -3,6 +3,8 @@ package com.example.ReadingMails.service;
 
 import com.example.ReadingMails.dto.MailsRequest;
 import com.example.ReadingMails.entity.Person;
+import com.example.ReadingMails.exceptions.AddressException;
+import com.example.ReadingMails.exceptions.FileNotFoundException;
 import com.example.ReadingMails.repository.PersonRepository;
 import jakarta.mail.*;
 import jakarta.mail.internet.MimeMessage;
@@ -42,17 +44,34 @@ public class MailsService {
         //(MimeMessage is a class which extends Message class and implements Part)
         MimeMessage mimeMessage=javaMailSender.createMimeMessage();
         MimeMessageHelper helper=new MimeMessageHelper(mimeMessage,true,"UTF-8");
-
-        helper.setTo(mailsRequest.getTo());
         helper.setFrom(from);
         helper.setSubject(mailsRequest.getSubject());
         helper.setText(mailsRequest.getMessage());
         String path= mailsRequest.getAttachment();
-        File file=new File(path);
-        // FileSystemResource is a class extends Abstract class
-        FileSystemResource fileSystemResource=new FileSystemResource(file);
-        helper.addAttachment(fileSystemResource.getFilename(),fileSystemResource);
-        javaMailSender.send(mimeMessage);
+        try
+        {
+            helper.setTo(mailsRequest.getTo());
+            if(!mailsRequest.getTo().endsWith(".com"))
+            {
+                throw new AddressException("Invalid Email format");
+            }
+            File file=new File(path);
+            if(!file.exists())
+            {
+                throw new FileNotFoundException("File not found Exception");
+            }
+            // FileSystemResource is a class extends Abstract class
+            FileSystemResource fileSystemResource=new FileSystemResource(file);
+            helper.addAttachment(fileSystemResource.getFilename(),fileSystemResource);
+            javaMailSender.send(mimeMessage);
+        }
+        catch (FileNotFoundException e) {
+            throw new MessagingException("Error with file attachment: " + e.getMessage(), e);
+        }
+        catch (AddressException e)
+        {
+            throw new MessagingException(e.getMessage(),e);
+        }
     }
 
 
@@ -135,7 +154,6 @@ class DatesSort implements Runnable
             String format1 = sdf1.format(date);
             if(format1.equals(format))
            {
-               System.out.println("Condition checked");
                System.out.println(Arrays.toString(message.getFrom()));
                System.out.println(message.getSubject());
                System.out.println(message.getReceivedDate());
