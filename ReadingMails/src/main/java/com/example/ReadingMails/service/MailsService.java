@@ -134,6 +134,30 @@ public class MailsService {
 
         service.shutdown();
     }
+
+    public void readMailsOnRecipient(String recipient) throws MessagingException {
+        String host="imap.gmail.com";
+        String username="channanagoudagouda51@gmail.com";
+        String password="wafwrzwxlytpgrty";
+
+        Properties properties=new Properties();
+        properties.put("mail.imap.host",host);
+        properties.put("mail.imap.port","993");
+        properties.put("mail.imap.ssl.enable","true");
+
+        Session session=Session.getInstance(properties,null);
+        Store store = session.getStore("imap");
+        store.connect(host,username,password);
+        Folder folder = store.getFolder("INBOX");
+        folder.open(Folder.READ_ONLY);
+
+        Message[] messages = folder.getMessages();
+        for(Message message:messages)
+        {
+            System.out.println(Arrays.toString(message.getFrom()));
+        }
+
+    }
 }
 
 class DatesSort implements Runnable

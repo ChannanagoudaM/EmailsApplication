@@ -34,4 +34,10 @@ public class MailsController {
         mailsService.readMailsOnDate(date);
         return ResponseEntity.ok("Mail read");
     }
+
+    @GetMapping("/getFrom")
+    public ResponseEntity<String> basedOnRecipient(@RequestParam String from) throws MessagingException {
+        mailsService.readMailsOnRecipient(from);
+        return ResponseEntity.ok("Mail read successfully");
+    }
 }
