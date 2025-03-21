@@ -178,20 +178,21 @@ public class MailsService {
 
         FlagTerm unreadFlagTerm = new FlagTerm(new Flags(Flags.Flag.SEEN), false);
 
-        // Search for unread emails in the folder
         Message[] unreadMessages = folder.search(unreadFlagTerm);
+        if (unreadMessages.length == 0) {
+            System.out.println("No unread messages found.");
+        } else {
 
-        // Process the unread emails
-        for (Message message : unreadMessages) {
-            MimeMessage mimeMessage = (MimeMessage) message;
-            System.out.println("Subject: " + mimeMessage.getSubject());
-            System.out.println("From: " + mimeMessage.getFrom()[0]);
-            System.out.println("Received Date: " + mimeMessage.getReceivedDate());
-            System.out.println("Content: " + mimeMessage.getContent().toString());
-            System.out.println("---------------------------------------------------");
+            int limit = Math.min(5, unreadMessages.length); // Ensure we don't exceed available unread messages
+            for (int i = 0; i < limit; i++) {
+                MimeMessage mimeMessage = (MimeMessage) unreadMessages[i];
+                System.out.println("Subject: " + mimeMessage.getSubject());
+                System.out.println("From: " + mimeMessage.getFrom()[0]);
+                System.out.println("Received Date: " + mimeMessage.getReceivedDate());
+                System.out.println("Content: " + mimeMessage.getContent().toString());
+                System.out.println("---------------------------------------------------");
+            }
         }
-
-        // Close the folder and the store connection
         folder.close(false);
         store.close();
     }
