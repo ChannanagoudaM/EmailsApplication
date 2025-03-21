@@ -8,6 +8,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
 import java.time.LocalDate;
 import java.util.Date;
 
@@ -38,6 +39,12 @@ public class MailsController {
     @GetMapping("/getFrom")
     public ResponseEntity<String> basedOnRecipient(@RequestParam String from) throws MessagingException {
         mailsService.readMailsOnRecipient(from);
+        return ResponseEntity.ok("Mail read successfully");
+    }
+
+    @GetMapping("/getUnseen")
+    public ResponseEntity<String> basedOnUnseen() throws MessagingException, IOException {
+        mailsService.fetchUnseenMails();
         return ResponseEntity.ok("Mail read successfully");
     }
 }

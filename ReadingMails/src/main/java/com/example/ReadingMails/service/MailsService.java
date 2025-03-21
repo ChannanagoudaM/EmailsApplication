@@ -8,6 +8,7 @@ import com.example.ReadingMails.exceptions.FileNotFoundException;
 import com.example.ReadingMails.repository.PersonRepository;
 import jakarta.mail.*;
 import jakarta.mail.internet.MimeMessage;
+import jakarta.mail.search.FlagTerm;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.text.PDFTextStripper;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
@@ -157,6 +158,42 @@ public class MailsService {
             System.out.println(Arrays.toString(message.getFrom()));
         }
 
+    }
+
+    public void fetchUnseenMails() throws MessagingException, IOException {
+        String host="imap.gmail.com";
+        String username="channanagoudagouda51@gmail.com";
+        String password="wafwrzwxlytpgrty";
+
+        Properties properties=new Properties();
+        properties.put("mail.imap.host",host);
+        properties.put("mail.imap.port","993");
+        properties.put("mail.imap.ssl.enable","true");
+
+        Session session=Session.getInstance(properties,null);
+        Store store = session.getStore("imap");
+        store.connect(host,username,password);
+        Folder folder = store.getFolder("INBOX");
+        folder.open(Folder.READ_ONLY);
+
+        FlagTerm unreadFlagTerm = new FlagTerm(new Flags(Flags.Flag.SEEN), false);
+
+        // Search for unread emails in the folder
+        Message[] unreadMessages = folder.search(unreadFlagTerm);
+
+        // Process the unread emails
+        for (Message message : unreadMessages) {
+            MimeMessage mimeMessage = (MimeMessage) message;
+            System.out.println("Subject: " + mimeMessage.getSubject());
+            System.out.println("From: " + mimeMessage.getFrom()[0]);
+            System.out.println("Received Date: " + mimeMessage.getReceivedDate());
+            System.out.println("Content: " + mimeMessage.getContent().toString());
+            System.out.println("---------------------------------------------------");
+        }
+
+        // Close the folder and the store connection
+        folder.close(false);
+        store.close();
     }
 }
 
